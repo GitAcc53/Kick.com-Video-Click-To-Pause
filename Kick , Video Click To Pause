@@ -1,0 +1,38 @@
+// ==UserScript==
+// @name         Kick , Video Click To Pause
+// @description  Coordinate-based click-to-pause that works even with invisible overlays.
+// @version      16.1
+// @grant        none
+// @author       Trilla_G / Edit
+// @match        *://kick.com/*
+// @namespace    https://greasyfork.org/en/users/1200587-trilla-g
+// @license      MIT
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    window.addEventListener('click', function(e) {
+        const video = document.querySelector('video');
+        if (!video) return;
+
+        const rect = video.getBoundingClientRect();
+
+        const isInsideX = e.clientX >= rect.left && e.clientX <= rect.right;
+        const isInsideY = e.clientY >= rect.top && e.clientY <= rect.bottom;
+
+        // Exclude the bottom control bar (approx. 60px)
+        const isBottomControls = e.clientY > (rect.bottom - 60);
+
+        // Prevent triggering on actual buttons or links
+        const isInteractive = e.target.closest('button, a, input, [role="button"], .vjs-control');
+
+        if (isInsideX && isInsideY && !isBottomControls && !isInteractive) {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        }
+    }, true);
+})();
